@@ -1,0 +1,246 @@
+= JEP-401: Customizable Jenkins header
+:toc: preamble
+:toclevels: 3
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+.Metadata
+[cols="2"]
+|===
+| JEP
+| 401
+
+| Title
+| Customizable Jenkins header
+
+| Sponsor
+| link:https://github.com/imonteroperez[Ildefonso Montero]
+
+// Use the script `set-jep-status <jep-number> <status>` to update the status.
+| Status
+| Draft :speech_balloon:
+
+| Type
+| Standards
+
+| Created
+| 2021-11-28
+
+//
+//
+// Uncomment if there is an associated placeholder JIRA issue.
+//| JIRA
+//| :bulb: link:https://issues.jenkins-ci.org/browse/JENKINS-nnnnn[JENKINS-nnnnn] :bulb:
+//
+//
+// Uncomment if there will be a BDFL delegate for this JEP.
+//| BDFL-Delegate
+//| :bulb: Link to github user page :bulb:
+//
+//
+// Uncomment if discussion will occur in forum other than jenkinsci-dev@ mailing list.
+//| Discussions-To
+//| :bulb: Link to where discussion and final status announcement will occur :bulb:
+//
+//
+// Uncomment if this JEP depends on one or more other JEPs.
+//| Requires
+//| :bulb: JEP-NUMBER, JEP-NUMBER... :bulb:
+//
+//
+// Uncomment and fill if this JEP is rendered obsolete by a later JEP
+//| Superseded-By
+//| :bulb: JEP-NUMBER :bulb:
+//
+//
+// Uncomment when this JEP status is set to Accepted, Rejected or Withdrawn.
+//| Resolution
+//| :bulb: Link to relevant post in the jenkinsci-dev@ mailing list archives :bulb:
+
+|===
+
+== Abstract
+
+Jenkins does not provide a customization mechanism for header.
+
+Unique existing approach based on the https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin] has a limited capabilities (see Specification section for more details). It makes it difficult: (i) to provide branding capabilities to include custom logos, styles or other elements, and (ii) to make feasible to rewrite some functionality or include additional one to some elements like the search bar.
+
+This proposal provides an approach to make it extensible to provide a customization mechanism for a better integration that also reduces current tech debt.
+
+== Specification
+
+The main aspect of the change is the introduction of a new extension point `Header` as an abstract class that provides capabilities to render a specific header and a default implementation of that, named `JenkinsHeader` that is enabled by default always.
+
+All headers will provide an implementation of a priority method, via https://javadoc.jenkins.io/hudson/Extension.html[ordinal] though the `Extension` annotation, that will help to override, based on its value, which header will be rendered. Default one will provide a `Integer.MIN_VALUE` value.
+
+On `pageHeader.jelly` file we will perform a refactor to make it more modular providing different sections:
+
+* `headerDocumentation.jelly`: that will provide the content of the documentation of the Jelly page
+* `preHeader.jelly`: that will provide the content of the elements that want to be provided/rendered before header div is rendered on the browser
+* `headerContent.jelly`: that will provide the content of the header div
+* `postHeader.jelly`: that will provide the content of the elements that want to be provided/rendered after the header div is rendered on the browser
+
+Thus, `pageHeader.jelly` should look like:
+
+```
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:i="jelly:fmt" xmlns:x="jelly:xml">
+	<j:set var="header" value="${h.header()}" />
+	<st:include it="${header}" page="headerDocumentation.jelly"/>
+	<st:include it="${header}" page="preHeader.jelly"/>
+	<st:include it="${header}" page="headerContent.jelly"/>
+	<st:include it="${header}" page="postHeader.jelly"/>
+</j:jelly>
+```
+
+The `h.header()` method is provided in the `Functions` and it will retrieve the available headers via `Extension` lookup that are enabled and for those obtained it will provide the one with max priority (ordinal value). In case two or more headers are provided via external plugins with the same priority (and max), then the default one will be provided and a warning message would be provided on the logs.
+
+In terms of simplicity, proposal aims to use only one extension to do a full replacement of the header. As a follow up, each mentioned section of the header could have its own extension to override only a specific part of the header.
+
+=== Extensibility
+
+Jenkins users will be able to interact with the `Header` extension as follows in case want to customize the header of their instances via plugin:
+
+* Extend `Header` and provide an implementation of the priority method giving to this header the max possible value (via ordinal value)
+* Use an `ExtensionFilter` that would make it impossible to provide any additional Header instance
+
+== Motivation
+
+Jenkins uses `pageHeader.jelly` file to specify the content of the header. Although it is valid, if a user wants to modify the header to perform some branding operation, Jenkins header branding capabilities are limited.
+
+There exist some plugins, like: https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin], that allow Jenkins users to customize some parts like CSS and/or Javascript. On the other hand, if a Jenkins user wants to customize/modify some additional business functionality on some menus and search bar, then there is no approach beyond updating/overriding `pageHeader.jelly` from the Jenkins core, which would be a problem on updating the instance due to conflicts. In addition, it the user wants to customize these behaviors it would be good to have those features as REST endpoints. So, this approach is about providing not only UI capabilities, it is also providing extra functionality and better integration.
+
+== Reasoning
+
+We will use an example of a Jenkins user that wants to update Jenkins header through an ad hoc Jenkins plugin that follows the principles provided on Specification section:
+
+=== Jenkins core
+
+* Let’s consider the following definition of the `Header` on: `core/src/main/java/jenkins/views/Header.java`
+
+```
+package jenkins.views;
+
+import hudson.ExtensionPoint;
+
+public abstract class Header implements ExtensionPoint {
+
+    /**
+     * Check if the header is enabled. By default it is if installed,
+     * but the logic is deferred in the plugins.
+     * @return
+     */
+    public abstract boolean isHeaderEnabled();
+
+}
+```
+
+* Let’s consider the following implementation of the Jenkins header on: `core/src/main/java/jenkins/views/JenkinsHeader.java`
+
+```
+package jenkins.views;
+
+import hudson.Extension;
+
+@Extension(ordinal = Integer.MIN_VALUE)
+public class JenkinsHeader extends Header {
+
+    @Override
+    public boolean isHeaderEnabled() {
+        return true;
+    }
+}
+```
+
+* As mentioned before, the `Functions` method `header()` will retrieve the available headers via `Extension` lookup that are enabled and for those obtained it will provide the one with max priority (ordinal value)
+
+```
+[...]
+@Restricted(NoExternalUse.class)
+@CheckForNull
+public static Header header() {
+    List<Header> headers = ExtensionList.lookup(Header.class).stream()
+                .filter(header -> header.isHeaderEnabled())
+                .collect(Collectors.toList());
+    if (headers.size() > 0) {
+        if (headers.size() > 1) {
+            LOGGER.warning("More than one configured header. This should not happen. Serving the Jenkins default header and please review");
+        } else {
+            return headers.get(0);
+        }
+    }
+    return new JenkinsHeader();
+}
+```
+
+* Once we launch Jenkins with the proposed changes on the core, we will obtain the expected/current header working without any issue
+
+=== Custom UI plugin
+
+* Create a new plugin following the usual procedure
+* Provide an implementation of the custom Header (i.e: `custom-ui-plugin/src/main/java/foo/bar/CustomHeader.java`)
+
+```
+[...]
+@Extension(optional = true, ordinal = Integer.MAX_VALUE)
+public class CustomHeader extends Header {
+
+    @Override
+    public boolean isHeaderEnabled() {
+        // Disable/enable the header based on an ENV var
+        boolean isDisabled = "true".equalsIgnoreCase(System.getenv("CUSTOM_HEADER_DISABLE"));
+        return !isDisabled;
+    }
+}
+```
+
+* Use an `ExtensionFilter` to avoid other `Header` to be available (i.e.: `custom-ui-plugin/src/main/java/foo/bar/CustomHeaderExtensionFilter.java`)
+
+```
+[...]
+@Extension
+public class CustomHeaderExtensionFilter extends ExtensionFilter {
+
+    @Override
+    public <T> boolean allows(Class<T> type, ExtensionComponent<T> component) {
+        boolean isCustom = component.getInstance().getClass().equals(CustomHeader.class);
+        boolean isForbiddenHeader = type.equals(Header.class) && !isCustom;
+        return !isForbiddenHeader;
+    }
+}
+```
+
+* Update jelly files (headerContent, headerDocumentation, preHeader and/or postHeader)
+
+== Backwards Compatibility
+
+Existing headers will continue to work as expected
+
+== Security
+
+No specific security considerations
+
+== Infrastructure Requirements
+
+No impact on the Jenkins project infrastructure
+
+== Testing
+
+There are no testing issues related to this proposal
+
+== Reference Implementation
+
+* https://github.com/jenkinsci/jenkins/compare/stable-2.303...jenkins-header-revamp?expand=1
+* TBC
+
+== References
+
+Relevant data
+
+* jenkins-dev ML threads
+* JIRA tickets
