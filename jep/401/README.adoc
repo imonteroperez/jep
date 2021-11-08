@@ -104,10 +104,8 @@ In terms of simplicity, proposal aims to use only one extension to do a full rep
 
 === Extensibility
 
-Jenkins users will be able to interact with the `Header` extension as follows in case want to customize the header of their instances by creating a custom plugin:
+Jenkins users will be able to interact with the `Header` extension as follows in case want to customize the header of their instances by creating a custom plugin. For that purpose, they need just to extend `Header` and provide an implementation of the priority method using the ordinal value to specify desired priority value.
 
-* Extend `Header` and provide an implementation of the priority method using the ordinal value to specify desired priority value
-* Use an `ExtensionFilter` that would make it impossible to provide any additional Header instance
 
 == Motivation
 
@@ -195,22 +193,6 @@ public class CustomHeader extends Header {
         // Disable/enable the header based on an ENV var
         boolean isDisabled = "true".equalsIgnoreCase(System.getenv("CUSTOM_HEADER_DISABLE"));
         return !isDisabled;
-    }
-}
-```
-
-* Use an `ExtensionFilter` to avoid other `Header` to be available (i.e.: `custom-ui-plugin/src/main/java/foo/bar/CustomHeaderExtensionFilter.java`)
-
-```
-[...]
-@Extension
-public class CustomHeaderExtensionFilter extends ExtensionFilter {
-
-    @Override
-    public <T> boolean allows(Class<T> type, ExtensionComponent<T> component) {
-        boolean isCustom = component.getInstance().getClass().equals(CustomHeader.class);
-        boolean isForbiddenHeader = type.equals(Header.class) && !isCustom;
-        return !isForbiddenHeader;
     }
 }
 ```
