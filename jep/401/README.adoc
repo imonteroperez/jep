@@ -217,7 +217,7 @@ There are no testing issues related to this proposal
 
 == Reference Implementation
 
-* https://github.com/jenkinsci/jenkins/compare/stable-2.303...jenkins-header-revamp?expand=1
+* https://github.com/jenkinsci/jenkins/commit/59f68357c05f9c3d094ca835efea2212c5e38473
 * TBC
 
 == References
