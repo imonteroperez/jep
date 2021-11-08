@@ -106,7 +106,7 @@ In terms of simplicity, proposal aims to use only one extension to do a full rep
 
 Jenkins users will be able to interact with the `Header` extension as follows in case want to customize the header of their instances via plugin:
 
-* Extend `Header` and provide an implementation of the priority method giving to this header the max possible value (via ordinal value)
+* Extend `Header` and provide an implementation of the priority method using the ordinal value to specify desired priority value
 * Use an `ExtensionFilter` that would make it impossible to provide any additional Header instance
 
 == Motivation
