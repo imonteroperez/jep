@@ -113,7 +113,7 @@ Jenkins users will be able to interact with the `Header` extension as follows in
 
 Jenkins uses `pageHeader.jelly` file to specify the content of the header. Although it is valid, if a user wants to modify the header to perform some branding operation, Jenkins header branding capabilities are limited.
 
-There exist some plugins, like: https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin], that allow Jenkins users to customize some parts like CSS and/or Javascript. On the other hand, if a Jenkins user wants to customize/modify some additional business functionality on some menus and search bar, then there is no approach beyond updating/overriding `pageHeader.jelly` from the Jenkins core, which would be a problem on updating the instance due to conflicts. In addition, it the user wants to customize these behaviors it would be good to have those features as REST endpoints. So, this approach is about providing not only UI capabilities, it is also providing extra functionality and better integration.
+There exist some plugins, like: https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin], that allow Jenkins users to customize some parts like CSS and/or Javascript. On the other hand, if a Jenkins user wants to customize/modify some additional business functionality on some menus and search bar, then there is no approach beyond updating/overriding `pageHeader.jelly` from the Jenkins core, which would be a problem on updating the instance due to conflicts. In addition, if the user wants to customize these behaviors it would be good to have those features as REST endpoints. So, this approach is about providing not only UI capabilities, it is also providing extra functionality and better integration.
 
 == Reasoning
 
