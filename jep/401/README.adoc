@@ -68,7 +68,7 @@ endif::[]
 
 Jenkins does not provide a customization mechanism for header.
 
-Unique existing approach based on the https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin] has a limited capabilities (see Specification section for more details). It makes it difficult: (i) to provide branding capabilities to include custom logos, styles or other elements, and (ii) to make feasible to rewrite some functionality or include additional one to some elements like the search bar.
+Unique existing approach based on the https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin] has a limited capabilities (see Specification section for more details). It makes it difficult: (i) to provide branding capabilities to include custom logos, styles or other elements, and (ii) to make feasible to rewrite some functionality or include additional one to some elements like the search bar. Sometimes, this limited customization capabilities implies a barrier on Jenkins adoption inside enterprises. Having the ability to customize the header (not only from the UI POV) will help to avoid that situation.
 
 This proposal provides an approach to make it extensible to provide a customization mechanism for a better integration that also reduces current tech debt.
 
@@ -181,7 +181,7 @@ public static Header header() {
 === Custom UI plugin
 
 * Create a new plugin following the usual procedure
-* Provide an implementation of the custom Header (i.e: `custom-ui-plugin/src/main/java/foo/bar/CustomHeader.java`)
+* Provide an implementation of the custom Header (i.e: `src/main/java/org/jenkinsci/plugins/custom/header/CustomHeader.java`)
 
 ```
 [...]
@@ -197,7 +197,8 @@ public class CustomHeader extends Header {
 }
 ```
 
-* Update jelly files (headerContent, headerDocumentation, preHeader and/or postHeader)
+* Provide the jelly files to override the core ones: headerContent, headerDocumentation, preHeader and/or postHeader. For that purpose, use the common location convention. For the previous example: `src/main/resources/org/jenkinsci/plugins/custom/header/CustomHeader/`.
+* See the sample implementation provided in the Reference Implementation section.
 
 == Backwards Compatibility
 
@@ -217,8 +218,8 @@ There are no testing issues related to this proposal
 
 == Reference Implementation
 
-* https://github.com/jenkinsci/jenkins/commit/59f68357c05f9c3d094ca835efea2212c5e38473
-* TBC
+* Proposed changes on Jenkins core: https://github.com/jenkinsci/jenkins/commit/59f68357c05f9c3d094ca835efea2212c5e38473
+* Prototype of a Custom UI plugin: https://github.com/imonteroperez/custom-header-plugin. This plugin is modifying the current Jenkins header including an extra search box (just for clarification purposes).
 
 == References
 
