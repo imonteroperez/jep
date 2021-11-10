@@ -185,7 +185,7 @@ public static Header header() {
 
 ```
 [...]
-@Extension(optional = true, ordinal = Integer.MAX_VALUE)
+@Extension(ordinal = Integer.MAX_VALUE)
 public class CustomHeader extends Header {
 
     @Override
