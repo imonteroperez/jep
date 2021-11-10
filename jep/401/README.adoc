@@ -76,7 +76,7 @@ This proposal provides an approach to make it extensible to provide a customizat
 
 The main aspect of the change is the introduction of a new extension point `Header` as an abstract class that provides capabilities to render a specific header and a default implementation of that, named `JenkinsHeader` that is enabled by default always.
 
-All headers will provide an implementation of a priority method, via https://javadoc.jenkins.io/hudson/Extension.html[ordinal] though the `Extension` annotation, that will help to override, based on its value, which header will be rendered. Default one will provide a `Integer.MIN_VALUE` value.
+All headers will provide a prioritization technique, via https://javadoc.jenkins.io/hudson/Extension.html[ordinal] though the `Extension` annotation, that will help to override, based on its value, which header will be rendered. Default one will provide a `Integer.MIN_VALUE` value.
 
 On `pageHeader.jelly` file we will perform a refactor to make it more modular providing different sections:
 
@@ -185,13 +185,15 @@ public static Header header() {
 
 ```
 [...]
-@Extension(ordinal = Integer.MAX_VALUE)
+@Extension(ordinal = 100)
 public class CustomHeader extends Header {
 
     @Override
     public boolean isHeaderEnabled() {
-        // Disable/enable the header based on an ENV var
-        boolean isDisabled = "true".equalsIgnoreCase(System.getenv("CUSTOM_HEADER_DISABLE"));
+        // Disable/enable the header based on an ENV var and/or system property
+        boolean isDisabled = System.getProperty(CustomHeader.class.getName() + ".disable") != null ?
+                "true".equalsIgnoreCase(System.getProperty(CustomHeader.class.getName() + ".disable")) :
+                "true".equalsIgnoreCase(System.getenv("CUSTOM_HEADER_DISABLE"));
         return !isDisabled;
     }
 }
@@ -218,7 +220,7 @@ There are no testing issues related to this proposal
 
 == Reference Implementation
 
-* Proposed changes on Jenkins core: https://github.com/jenkinsci/jenkins/commit/59f68357c05f9c3d094ca835efea2212c5e38473
+* Proposed changes on Jenkins core: https://github.com/jenkinsci/jenkins/compare/master...imonteroperez:header-revamp?expand=1
 * Prototype of a Custom UI plugin: https://github.com/imonteroperez/custom-header-plugin. This plugin is modifying the current Jenkins header including an extra search box (just for clarification purposes).
 
 == References
