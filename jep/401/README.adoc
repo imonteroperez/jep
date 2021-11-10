@@ -89,7 +89,6 @@ All headers will provide a prioritization technique, via https://javadoc.jenkins
 
 On `pageHeader.jelly` file we will perform a refactor to make it more modular providing different sections:
 
-* `headerDocumentation.jelly`: that will provide the content of the documentation of the Jelly page
 * `preHeader.jelly`: that will provide the content of the elements that want to be provided/rendered before header div is rendered on the browser
 * `headerContent.jelly`: that will provide the content of the header div
 * `postHeader.jelly`: that will provide the content of the elements that want to be provided/rendered after the header div is rendered on the browser
@@ -100,7 +99,6 @@ Thus, `pageHeader.jelly` should look like:
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:i="jelly:fmt" xmlns:x="jelly:xml">
 	<j:invokeStatic var="header" className="jenkins.views.JenkinsHeader" method="get"/>
-	<st:include it="${header}" page="headerDocumentation"/>
 	<st:include it="${header}" page="preHeader.jelly"/>
 	<st:include it="${header}" page="headerContent.jelly"/>
 	<st:include it="${header}" page="postHeader.jelly"/>
@@ -213,7 +211,7 @@ public class CustomHeader extends Header {
 }
 ```
 
-* Provide the jelly files to override the core ones: headerContent, headerDocumentation, preHeader and/or postHeader. For that purpose, use the common location convention. For the previous example: `src/main/resources/org/jenkinsci/plugins/custom/header/CustomHeader/`.
+* Provide the jelly files to override the core ones: headerContent, preHeader and/or postHeader. For that purpose, use the common location convention. For the previous example: `src/main/resources/org/jenkinsci/plugins/custom/header/CustomHeader/`.
 * See the sample implementation provided in the Reference Implementation section.
 
 == Backwards Compatibility
