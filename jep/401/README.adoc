@@ -87,11 +87,11 @@ On `pageHeader.jelly` file we will perform a refactor to make it more modular pr
 
 Thus, `pageHeader.jelly` should look like:
 
-```
+```xml
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:i="jelly:fmt" xmlns:x="jelly:xml">
 	<j:set var="header" value="${h.header()}" />
-	<st:include it="${header}" page="headerDocumentation.jelly"/>
+	<st:include it="${header}" page="headerDocumentation"/>
 	<st:include it="${header}" page="preHeader.jelly"/>
 	<st:include it="${header}" page="headerContent.jelly"/>
 	<st:include it="${header}" page="postHeader.jelly"/>
@@ -126,14 +126,14 @@ package jenkins.views;
 
 import hudson.ExtensionPoint;
 
-public abstract class Header implements ExtensionPoint {
+public interface Header extends ExtensionPoint {
 
     /**
      * Check if the header is enabled. By default it is if installed,
      * but the logic is deferred in the plugins.
      * @return
      */
-    public abstract boolean isHeaderEnabled();
+    boolean isHeaderEnabled();
 
 }
 ```
