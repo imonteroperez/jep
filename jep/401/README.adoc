@@ -68,9 +68,18 @@ endif::[]
 
 Jenkins does not provide a customization mechanism for header.
 
-Unique existing approach based on the https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin] has a limited capabilities (see Specification section for more details). It makes it difficult: (i) to provide branding capabilities to include custom logos, styles or other elements, and (ii) to make feasible to rewrite some functionality or include additional one to some elements like the search bar. Sometimes, this limited customization capabilities implies a barrier on Jenkins adoption inside enterprises. Having the ability to customize the header (not only from the UI POV) will help to avoid that situation.
+Unique existing approach based on the https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin] has a limited capabilities (see Specification section for more details).
 
-This proposal provides an approach to make it extensible to provide a customization mechanism for a better integration that also reduces current tech debt.
+It makes it difficult:
+
+* to provide branding capabilities to include custom logos, styles or other elements, and
+* to make feasible to rewrite some functionality or include additional one to some elements like the search bar.
+
+Sometimes, this limited customization capabilities implies a barrier on Jenkins adoption inside enterprises.
+
+Having the ability to customize the header (not only from the UI POV) will help to avoid that situation.
+
+This proposal provides a customization mechanism for a better integration that also reduces current tech debt.
 
 == Specification
 
@@ -111,7 +120,11 @@ Jenkins users will be able to interact with the `Header` extension as follows in
 
 Jenkins uses `pageHeader.jelly` file to specify the content of the header. Although it is valid, if a user wants to modify the header to perform some branding operation, Jenkins header branding capabilities are limited.
 
-There exist some plugins, like: https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin], that allow Jenkins users to customize some parts like CSS and/or Javascript. On the other hand, if a Jenkins user wants to customize/modify some additional business functionality on some menus and search bar, then there is no approach beyond updating/overriding `pageHeader.jelly` from the Jenkins core, which would be a problem on updating the instance due to conflicts. In addition, if the user wants to customize these behaviors it would be good to have those features as REST endpoints. So, this approach is about providing not only UI capabilities, it is also providing extra functionality and better integration.
+There exist some plugins, like: https://plugins.jenkins.io/simple-theme-plugin/[simple-theme-plugin], that allow Jenkins users to customize some parts like CSS and/or Javascript. On the other hand, if a Jenkins user wants to customize/modify some additional business functionality on some menus and search bar, then there is no approach beyond updating/overriding `pageHeader.jelly` from the Jenkins core, which would be a problem on updating the instance due to conflicts. In addition, if the user wants to customize these behaviors it would be good to have those features as REST endpoints.
+
+Also, other alternatives has been evaluated as workaround like the https://github.com/stephenc/diffpatch-maven-plugin[diffpatch-maven-plugin] with no satisfactory results. See Reasoning section for futher details.
+
+So, this approach is about providing not only UI capabilities, it is also providing extra functionality and better integration.
 
 == Reasoning
 
