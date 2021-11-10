@@ -99,7 +99,7 @@ Thus, `pageHeader.jelly` should look like:
 ```xml
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:i="jelly:fmt" xmlns:x="jelly:xml">
-	<j:set var="header" value="${h.header()}" />
+	<j:invokeStatic var="header" className="jenkins.views.JenkinsHeader" method="get"/>
 	<st:include it="${header}" page="headerDocumentation"/>
 	<st:include it="${header}" page="preHeader.jelly"/>
 	<st:include it="${header}" page="headerContent.jelly"/>
@@ -107,7 +107,7 @@ Thus, `pageHeader.jelly` should look like:
 </j:jelly>
 ```
 
-The `h.header()` method is provided in the `Functions` and it will retrieve the available headers via `Extension` lookup that are enabled and for those obtained it will provide the one with max priority (ordinal value). In case two or more headers are provided via external plugins with the same priority (and max), then the default one will be provided and a warning message would be provided on the logs.
+The `get()` method is provided in the default implementation `jenkins.views.JenkinsHeader` and it will retrieve the available headers via `Extension` lookup that are enabled and for those obtained it will provide the one with max priority (ordinal value). In case two or more headers are provided via external plugins with the same priority (and max), then the default one will be provided and a warning message would be provided on the logs.
 
 In terms of simplicity, proposal aims to use only one extension to do a full replacement of the header. As a follow up, any given implementation of the extension can provide custom extension points for further or more granular customization capabilities.
 
@@ -165,16 +165,17 @@ public class JenkinsHeader extends Header {
     public boolean isHeaderEnabled() {
         return true;
     }
+    [...]
 }
 ```
 
-* As mentioned before, the `Functions` method `header()` will retrieve the available headers via `Extension` lookup that are enabled and for those obtained it will provide the one with max priority (ordinal value)
+* As mentioned before, method `get()` from `JenkinsHeader` will retrieve the available headers via `Extension` lookup that are enabled and for those obtained it will provide the one with max priority (ordinal value)
 
 ```
 [...]
 @Restricted(NoExternalUse.class)
 @CheckForNull
-public static Header header() {
+public static Header get() {
     List<Header> headers = ExtensionList.lookup(Header.class).stream()
                 .filter(header -> header.isHeaderEnabled())
                 .collect(Collectors.toList());
