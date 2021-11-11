@@ -83,7 +83,7 @@ This proposal provides a customization mechanism for a better integration that a
 
 == Specification
 
-The main aspect of the change is the introduction of a new extension point `Header` as an abstract class that provides capabilities to render a specific header and a default implementation of that, named `JenkinsHeader` that is enabled by default always.
+The main aspect of the change is the introduction of a new extension point `Header` as an interface (or an abstract class) that provides capabilities to render a specific header and a default implementation of that, named `JenkinsHeader` that is enabled by default always.
 
 All headers will provide a prioritization technique, via https://javadoc.jenkins.io/hudson/Extension.html[ordinal] though the `Extension` annotation, that will help to override, based on its value, which header will be rendered. Default one will provide a `Integer.MIN_VALUE` value.
 
