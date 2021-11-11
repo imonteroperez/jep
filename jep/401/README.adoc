@@ -257,7 +257,7 @@ There are no testing issues related to this proposal
 
 == Reference Implementation
 
-* Proposed changes on https://github.com/jenkinsci/jenkins/compare/master...imonteroperez:header-revamp?expand=1[Jenkins core]
+* Proposed changes on Jenkins core: https://github.com/jenkinsci/jenkins/compare/master...imonteroperez:header-revamp?expand=1
 * Prototype of a https://github.com/imonteroperez/custom-header-plugin[Custom Header plugin]. This plugin is modifying the current Jenkins header including an extra search box (just for clarification purposes).
 
 == References
